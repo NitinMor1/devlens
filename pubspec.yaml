@@ -1,0 +1,22 @@
+name: devlens
+description: Flutter Dependency Explorer. A developer tool to analyze any Flutter or Dart project and generate an interactive architecture and dependency visualization map.
+version: 1.0.0
+homepage: https://github.com/my_org/devlens
+repository: https://github.com/my_org/devlens
+issue_tracker: https://github.com/my_org/devlens/issues
+
+environment:
+  sdk: ^3.11.5
+
+# Add regular dependencies here.
+dependencies:
+  analyzer: ^14.1.0
+  args: ^2.7.0
+  path: ^1.9.1
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
+
+executables:
+  devlens:
