@@ -4,6 +4,9 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:devlens/packages/graph_engine/models.dart';
 import 'package:path/path.dart' as p;
 
+/// Core parser that analyzes Dart projects and extracts architecture metadata.
+/// 
+/// It traverses the lib/ directory to map dependencies and class types.
 class DartParser {
   final String rootPath;
   late final String libPath;
