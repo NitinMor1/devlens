@@ -56,7 +56,7 @@ class DartParser {
 
       final relativePath = p.relative(file.path, from: libPath);
       // Construct package URI to use as an ID
-      final id = "package:\$packageName/\${relativePath.replaceAll(r'\\\\', '/')}";
+      final id = "package:$packageName/${relativePath.replaceAll(r'\\', '/')}";
       
       final dependencies = <String>[];
 
@@ -72,7 +72,7 @@ class DartParser {
                 final fileDir = p.dirname(file.path);
                 final absoluteTarget = p.normalize(p.join(fileDir, uri));
                 final targetRelative = p.relative(absoluteTarget, from: libPath);
-                final resolvedUri = "package:\$packageName/\${targetRelative.replaceAll(r'\\\\', '/')}";
+                final resolvedUri = "package:$packageName/${targetRelative.replaceAll(r'\\', '/')}";
                 dependencies.add(resolvedUri);
              }
           }
