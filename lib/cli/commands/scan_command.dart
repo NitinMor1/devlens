@@ -2,6 +2,7 @@ import 'package:args/command_runner.dart';
 import 'package:devlens/packages/parser/dart_parser.dart';
 import 'package:devlens/packages/graph_engine/models.dart';
 import 'package:devlens/packages/reports/json_exporter.dart';
+import 'package:devlens/packages/reports/html_exporter.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 
@@ -46,7 +47,26 @@ class ScanCommand extends Command<void> {
     print('Exporting reports...');
     final outDir = p.join(absolutePath, '.dep_explorer');
     await JsonExporter.export(graph, outDir);
+    await HtmlExporter.export(graph, outDir);
 
     print('Scan complete! Reports saved to $outDir');
+    
+    final htmlPath = p.normalize(p.join(outDir, 'index.html'));
+    final fileUri = 'file:///${htmlPath.replaceAll('\\', '/')}';
+    
+    print('\n🚀 Visualization ready! Opening in your browser...');
+    
+    try {
+      if (Platform.isWindows) {
+        await Process.run('start', [fileUri], runInShell: true);
+      } else if (Platform.isMacOS) {
+        await Process.run('open', [fileUri]);
+      } else if (Platform.isLinux) {
+        await Process.run('xdg-open', [fileUri]);
+      }
+    } catch (e) {
+      print('Could not open browser automatically. You can open this file manually:');
+      print('   $fileUri');
+    }
   }
 }
