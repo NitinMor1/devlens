@@ -59,7 +59,7 @@ class DartParser {
 
       final relativePath = p.relative(file.path, from: libPath);
       // Construct package URI to use as an ID
-      final id = "package:$packageName/${relativePath.replaceAll(r'\\', '/')}";
+      final id = "package:$packageName/${relativePath.replaceAll('\\', '/')}";
       
       final dependencies = <String>[];
 
@@ -67,15 +67,15 @@ class DartParser {
         if (directive is ImportDirective) {
           final uri = directive.uri.stringValue;
           if (uri != null) {
-             // Basic resolution for relative imports inside lib/
-             if (uri.startsWith('package:') || uri.startsWith('dart:')) {
-                dependencies.add(uri);
-             } else {
+             // Only include internal package dependencies to keep the graph clean
+             if (uri.startsWith('package:$packageName/')) {
+                 dependencies.add(uri);
+             } else if (!uri.startsWith('package:') && !uri.startsWith('dart:')) {
                 // relative import, convert to package import
                 final fileDir = p.dirname(file.path);
                 final absoluteTarget = p.normalize(p.join(fileDir, uri));
                 final targetRelative = p.relative(absoluteTarget, from: libPath);
-                final resolvedUri = "package:$packageName/${targetRelative.replaceAll(r'\\', '/')}";
+                final resolvedUri = "package:$packageName/${targetRelative.replaceAll('\\', '/')}";
                 dependencies.add(resolvedUri);
              }
           }

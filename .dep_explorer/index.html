@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevLens - Architecture Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        #mynetwork {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        /* Glassmorphism Panel */
+        .panel {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 320px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .panel.visible {
+            transform: translateX(0);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+            word-break: break-all;
+        }
+        .panel-type {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #94a3b8;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .deps-section h4 {
+            margin: 0 0 10px 0;
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .deps-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .deps-list li {
+            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            color: #cbd5e1;
+            word-break: break-all;
+            border-left: 3px solid transparent;
+        }
+        .deps-list li:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Scrollbar styles for the list */
+        .deps-list::-webkit-scrollbar { width: 6px; }
+        .deps-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        .deps-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        
+        /* Header Logo */
+        .header-logo {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(8px);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .header-logo h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stats-badge {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            z-index: 10;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .legend-title {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-logo">
+        <h1>DevLens</h1>
+        <div class="stats-badge" id="stats-badge">Loading...</div>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-title">Components</div>
+        <div class="legend-item"><div class="legend-color" style="background: #3b82f6;"></div>Screen</div>
+        <div class="legend-item"><div class="legend-color" style="background: #a855f7;"></div>State / Bloc</div>
+        <div class="legend-item"><div class="legend-color" style="background: #f59e0b;"></div>Repository</div>
+        <div class="legend-item"><div class="legend-color" style="background: #10b981;"></div>Model</div>
+        <div class="legend-item"><div class="legend-color" style="background: #64748b;"></div>File</div>
+    </div>
+
+    <div id="mynetwork"></div>
+
+    <div class="panel" id="infoPanel">
+        <div class="panel-header">
+            <div>
+                <h3 class="panel-title" id="nodeTitle">Node Name</h3>
+                <div class="panel-type" id="nodeType">Type</div>
+            </div>
+            <button class="close-btn" id="closeBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        
+        <div class="deps-section" id="importsSection">
+            <h4>Imports (<span id="importsCount">0</span>)</h4>
+            <ul class="deps-list" id="importsList"></ul>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Inject the JSON data here during export
+        const rawData = {"nodes":[{"id":"package:devlens/cli\\commands\\scan_command.dart","label":"scan_command.dart","type":"file","group":"core"},{"id":"package:devlens/cli\\command_runner.dart","label":"command_runner.dart","type":"file","group":"core"},{"id":"package:devlens/devlens.dart","label":"devlens.dart","type":"file","group":"core"},{"id":"package:devlens/packages\\graph_engine\\models.dart","label":"models.dart","type":"file","group":"core"},{"id":"package:devlens/packages\\parser\\dart_parser.dart","label":"dart_parser.dart","type":"file","group":"core"},{"id":"package:devlens/packages\\reports\\html_exporter.dart","label":"html_exporter.dart","type":"file","group":"core"},{"id":"package:devlens/packages\\reports\\json_exporter.dart","label":"json_exporter.dart","type":"file","group":"core"}],"edges":[{"source":"package:devlens/cli\\commands\\scan_command.dart","target":"package:args/command_runner.dart","type":"imports"},{"source":"package:devlens/cli\\commands\\scan_command.dart","target":"package:devlens/packages/parser/dart_parser.dart","type":"imports"},{"source":"package:devlens/cli\\commands\\scan_command.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/cli\\commands\\scan_command.dart","target":"package:devlens/packages/reports/json_exporter.dart","type":"imports"},{"source":"package:devlens/cli\\commands\\scan_command.dart","target":"package:devlens/packages/reports/html_exporter.dart","type":"imports"},{"source":"package:devlens/cli\\commands\\scan_command.dart","target":"dart:io","type":"imports"},{"source":"package:devlens/cli\\commands\\scan_command.dart","target":"package:path/path.dart","type":"imports"},{"source":"package:devlens/cli\\command_runner.dart","target":"package:args/command_runner.dart","type":"imports"},{"source":"package:devlens/cli\\command_runner.dart","target":"package:devlens/cli/commands/scan_command.dart","type":"imports"},{"source":"package:devlens/packages\\parser\\dart_parser.dart","target":"dart:io","type":"imports"},{"source":"package:devlens/packages\\parser\\dart_parser.dart","target":"package:analyzer/dart/analysis/utilities.dart","type":"imports"},{"source":"package:devlens/packages\\parser\\dart_parser.dart","target":"package:analyzer/dart/ast/ast.dart","type":"imports"},{"source":"package:devlens/packages\\parser\\dart_parser.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages\\parser\\dart_parser.dart","target":"package:path/path.dart","type":"imports"},{"source":"package:devlens/packages\\reports\\html_exporter.dart","target":"dart:convert","type":"imports"},{"source":"package:devlens/packages\\reports\\html_exporter.dart","target":"dart:io","type":"imports"},{"source":"package:devlens/packages\\reports\\html_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages\\reports\\html_exporter.dart","target":"package:path/path.dart","type":"imports"},{"source":"package:devlens/packages\\reports\\json_exporter.dart","target":"dart:convert","type":"imports"},{"source":"package:devlens/packages\\reports\\json_exporter.dart","target":"dart:io","type":"imports"},{"source":"package:devlens/packages\\reports\\json_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages\\reports\\json_exporter.dart","target":"package:path/path.dart","type":"imports"}]};
+        
+        // Colors mapping based on type
+        const typeColors = {
+            'screen': { bg: '#3b82f6', border: '#2563eb', text: '#bfdbfe' },
+            'state': { bg: '#a855f7', border: '#9333ea', text: '#e9d5ff' },
+            'repository': { bg: '#f59e0b', border: '#d97706', text: '#fde68a' },
+            'model': { bg: '#10b981', border: '#059669', text: '#a7f3d0' },
+            'file': { bg: '#64748b', border: '#475569', text: '#e2e8f0' },
+            'default': { bg: '#64748b', border: '#475569', text: '#e2e8f0' }
+        };
+
+        // Parse nodes for vis.js
+        const nodesList = (rawData.nodes || []).map(n => {
+            const colors = typeColors[n.type] || typeColors.default;
+            return {
+                id: n.id,
+                label: n.label,
+                title: n.id, // hover tooltip
+                _rawType: n.type,
+                color: {
+                    background: colors.bg,
+                    border: colors.border,
+                    highlight: { background: colors.border, border: '#ffffff' },
+                    hover: { background: colors.bg, border: '#ffffff' }
+                },
+                font: { color: '#ffffff', face: 'Inter' }
+            };
+        });
+
+        // Parse edges for vis.js
+        const edgesList = (rawData.edges || []).map(e => {
+            return {
+                from: e.source,
+                to: e.target,
+                color: { color: 'rgba(148, 163, 184, 0.3)', highlight: '#38bdf8', hover: '#818cf8' },
+                width: 1,
+                selectionWidth: 2,
+                arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+                smooth: { type: 'continuous' }
+            };
+        });
+
+        // Update Stats Badge
+        document.getElementById('stats-badge').innerText = `${nodesList.length} Nodes • ${edgesList.length} Edges`;
+
+        // Provide the data in the vis format
+        const data = {
+            nodes: new vis.DataSet(nodesList),
+            edges: new vis.DataSet(edgesList)
+        };
+        
+        const container = document.getElementById('mynetwork');
+        
+        // Network options for an organic look
+        const options = {
+            nodes: {
+                shape: 'dot',
+                size: 16,
+                borderWidth: 2,
+                font: { size: 12, multi: 'html', align: 'center' },
+                shadow: { enabled: true, color: 'rgba(0,0,0,0.4)', size: 10, x: 2, y: 2 }
+            },
+            physics: {
+                forceAtlas2Based: {
+                    gravitationalConstant: -100,
+                    centralGravity: 0.01,
+                    springLength: 150,
+                    springConstant: 0.08
+                },
+                maxVelocity: 50,
+                solver: 'forceAtlas2Based',
+                timestep: 0.35,
+                stabilization: { iterations: 150 }
+            },
+            interaction: {
+                hover: true,
+                tooltipDelay: 200,
+                hideEdgesOnDrag: true
+            }
+        };
+
+        const network = new vis.Network(container, data, options);
+
+        // UI Interactions
+        const panel = document.getElementById('infoPanel');
+        const closeBtn = document.getElementById('closeBtn');
+        const nodeTitle = document.getElementById('nodeTitle');
+        const nodeType = document.getElementById('nodeType');
+        const importsList = document.getElementById('importsList');
+        const importsCount = document.getElementById('importsCount');
+        
+        closeBtn.addEventListener('click', () => {
+            panel.classList.remove('visible');
+            network.unselectAll();
+        });
+
+        network.on("selectNode", function (params) {
+            if (params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                const node = nodesList.find(n => n.id === nodeId);
+                
+                if (node) {
+                    nodeTitle.innerText = node.label;
+                    nodeType.innerText = node._rawType;
+                    
+                    const colors = typeColors[node._rawType] || typeColors.default;
+                    nodeType.style.backgroundColor = `rgba(255,255,255,0.1)`;
+                    nodeType.style.color = colors.bg;
+                    nodeType.style.border = `1px solid ${colors.bg}`;
+                    
+                    // Find imports (edges going out from this node)
+                    const outgoing = edgesList.filter(e => e.from === nodeId);
+                    importsCount.innerText = outgoing.length;
+                    
+                    importsList.innerHTML = '';
+                    if (outgoing.length === 0) {
+                        importsList.innerHTML = '<li style="color: #64748b;">No dependencies</li>';
+                    } else {
+                        outgoing.forEach(e => {
+                            const targetNode = nodesList.find(n => n.id === e.to);
+                            const targetColors = typeColors[targetNode ? targetNode._rawType : 'default'];
+                            
+                            const li = document.createElement('li');
+                            li.innerText = targetNode ? targetNode.label : e.to;
+                            li.style.borderLeftColor = targetColors.bg;
+                            importsList.appendChild(li);
+                        });
+                    }
+                    
+                    panel.classList.add('visible');
+                }
+            }
+        });
+        
+        network.on("deselectNode", function () {
+            panel.classList.remove('visible');
+        });
+    </script>
+</body>
+</html>
