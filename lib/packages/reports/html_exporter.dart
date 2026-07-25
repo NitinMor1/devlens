@@ -185,6 +185,7 @@ class HtmlExporter {
         <div class="toolbar">
             <span style="font-size: 0.875rem; color: var(--text-muted);">Graph Module:</span>
             <select id="module-select">
+                <option value="top_relevant">Top Relevant Files (Default)</option>
                 <option value="all">Entire Project (Slow)</option>
             </select>
             <button id="btn-draw">Draw Graph</button>
@@ -289,7 +290,10 @@ class HtmlExporter {
             document.getElementById('details-panel').classList.remove('active');
             
             let nodesToDraw = rawData.nodes;
-            if(moduleId !== 'all') {
+            if (moduleId === 'top_relevant') {
+                const topNodesSet = new Set(rawData.metrics.top_nodes);
+                nodesToDraw = rawData.nodes.filter(n => topNodesSet.has(n.id));
+            } else if(moduleId !== 'all') {
                 nodesToDraw = rawData.nodes.filter(n => n.module === moduleId);
                 // Also include immediate dependencies of this module
                 const moduleNodeIds = new Set(nodesToDraw.map(n => n.id));
@@ -369,11 +373,9 @@ class HtmlExporter {
             });
         });
         
-        // Initial draw (don't draw 'all' by default as requested in plan, draw empty or first module)
-        if(Object.keys(modules).length > 0) {
-            modSelect.value = Object.keys(modules)[0];
-            drawGraph(modSelect.value);
-        }
+        // Initial draw (relevance filter by default)
+        modSelect.value = 'top_relevant';
+        drawGraph(modSelect.value);
 
     </script>
 </body>

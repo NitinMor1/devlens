@@ -43,13 +43,46 @@ class ScanCommand extends Command<void> {
 
     print('Generating graph...');
     final graph = DependencyGraph(nodes: nodes);
+    final graphData = graph.toJson();
+    final metrics = graphData['metrics'] as Map<String, dynamic>;
 
-    print('Exporting reports...');
+    print('\n🚀 DevLens Architecture Report\n');
+    print('Project Overview');
+    print('-------------------------');
+    print('Files:              ${metrics['total_nodes']}');
+    print('Screens:            ${metrics['total_screens']}');
+    print('Models:             ${metrics['total_models']}');
+    print('Repositories:       ${metrics['total_repositories']}');
+    print('Services:           ${metrics['total_services']}');
+    print('Widgets:            ${metrics['total_widgets']}');
+    
+    print('\nArchitecture Health');
+    print('-------------------------');
+    final circularCount = (metrics['circular_dependencies'] as List).length;
+    print('Circular Dependencies:       $circularCount   ${circularCount > 0 ? '(WARNING)' : ''}');
+    
+    final coupledCount = (metrics['highly_coupled'] as List).length;
+    print('Highly Coupled Files:       $coupledCount   ${coupledCount > 0 ? '(WARNING)' : ''}');
+    
+    final godCount = (metrics['god_classes'] as List).length;
+    print('God Classes (>15 imports):  $godCount   ${godCount > 0 ? '(WARNING)' : ''}');
+
+    print('\nTop Connected Files (Relevance)');
+    print('-------------------------');
+    final ranked = metrics['all_nodes_ranked'] as List;
+    for (int i = 0; i < ranked.length && i < 3; i++) {
+      final node = ranked[i];
+      final id = node['id'] as String;
+      final name = id.split('/').last;
+      print('${i + 1}. $name (${node['score']} connections)');
+    }
+
+    print('\nExporting reports...');
     final outDir = p.join(absolutePath, '.dep_explorer');
     await JsonExporter.export(graph, outDir);
     await HtmlExporter.export(graph, outDir);
 
-    print('Scan complete! Reports saved to $outDir');
+    print('\nScan complete! Reports saved to $outDir');
     
     final htmlPath = p.normalize(p.join(outDir, 'index.html'));
     final fileUri = 'file:///${htmlPath.replaceAll('\\', '/')}';

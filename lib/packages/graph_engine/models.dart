@@ -63,16 +63,47 @@ class DependencyGraph {
       score -= (circularDependencies.length * 5);
     }
     
-    // Find Highly Coupled / God Classes
+    // Calculate type metrics
+    int totalScreens = 0;
+    int totalModels = 0;
+    int totalRepositories = 0;
+    int totalServices = 0;
+    int totalWidgets = 0;
+    
+    for (final node in nodes) {
+      if (node.type == 'screen') totalScreens++;
+      else if (node.type == 'model') totalModels++;
+      else if (node.type == 'repository') totalRepositories++;
+      else if (node.type == 'service') totalServices++;
+      else if (node.type == 'widget') totalWidgets++;
+    }
+
+    // Dynamic Threshold Calculation
+    int threshold = nodes.length;
+    if (nodes.length <= 50) {
+      threshold = nodes.length;
+    } else if (nodes.length <= 200) {
+      threshold = 50;
+    } else if (nodes.length <= 1000) {
+      threshold = 75;
+    } else {
+      threshold = 100;
+    }
+
+    // Find Highly Coupled / God Classes & Rank Nodes
     final highlyCoupled = <Map<String, dynamic>>[];
     final godClasses = <Map<String, dynamic>>[];
+    final allNodesRanked = <Map<String, dynamic>>[];
     
     for (final node in nodes) {
       final inDegree = incomingEdges[node.id] ?? 0;
       final outDegree = outgoingEdges[node.id] ?? 0;
+      final totalDegree = inDegree + outDegree;
       
-      if (inDegree + outDegree > 20) {
-        highlyCoupled.add({'id': node.id, 'score': inDegree + outDegree});
+      allNodesRanked.add({'id': node.id, 'score': totalDegree});
+      
+      if (totalDegree > 20) {
+        highlyCoupled.add({'id': node.id, 'score': totalDegree});
         score -= 2; // Penalize for high coupling
       }
       
@@ -81,6 +112,9 @@ class DependencyGraph {
         score -= 3; // Penalize for god classes
       }
     }
+
+    allNodesRanked.sort((a, b) => (b['score'] as int).compareTo(a['score'] as int));
+    final topNodes = allNodesRanked.take(threshold).map((e) => e['id'] as String).toList();
 
     score = score.clamp(0, 100);
 
@@ -94,6 +128,14 @@ class DependencyGraph {
         'god_classes': godClasses..sort((a, b) => (b['imports'] as int).compareTo(a['imports'] as int)),
         'total_nodes': nodes.length,
         'total_edges': edges.length,
+        'total_screens': totalScreens,
+        'total_models': totalModels,
+        'total_repositories': totalRepositories,
+        'total_services': totalServices,
+        'total_widgets': totalWidgets,
+        'dynamic_threshold': threshold,
+        'top_nodes': topNodes,
+        'all_nodes_ranked': allNodesRanked,
       }
     };
   }
