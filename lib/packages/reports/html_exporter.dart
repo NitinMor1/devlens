@@ -4,13 +4,13 @@ import 'package:devlens/packages/graph_engine/models.dart';
 import 'package:path/path.dart' as p;
 
 class HtmlExporter {
-  static Future<void> export(DependencyGraph graph, String outputDir) async {
+  static Future<void> export(Map<String, dynamic> graphData, String outputDir) async {
     final dir = Directory(outputDir);
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
 
-    final graphJson = jsonEncode(graph.toJson());
+    final graphJson = jsonEncode(graphData);
     final htmlContent = _template.replaceFirst('__GRAPH_DATA__', graphJson);
     
     final htmlFile = File(p.join(outputDir, 'index.html'));
@@ -158,11 +158,29 @@ class HtmlExporter {
         
         <div class="tabs">
             <div class="tab active" data-target="tab-explorer">Explorer</div>
+            <div class="tab" data-target="tab-onboarding">Onboarding</div>
             <div class="tab" data-target="tab-insights">Insights</div>
         </div>
         
         <div class="tab-content active" id="tab-explorer">
             <ul id="file-tree"></ul>
+        </div>
+        
+        <div class="tab-content" id="tab-onboarding">
+            <div class="insight-card">
+                <h4>Architecture</h4>
+                <div id="onb-architecture" style="font-size: 1rem; color: var(--accent); margin-bottom: 8px;"></div>
+            </div>
+            <div class="insight-card">
+                <h4>Tech Stack</h4>
+                <div id="onb-state" class="insight-item"></div>
+                <div id="onb-routing" class="insight-item"></div>
+                <div id="onb-core" class="insight-item"></div>
+            </div>
+            <div class="insight-card">
+                <h4>Project Stats</h4>
+                <div id="onb-stats" style="font-size: 0.875rem; line-height: 1.5;"></div>
+            </div>
         </div>
         
         <div class="tab-content" id="tab-insights">
@@ -207,6 +225,11 @@ class HtmlExporter {
                         <ul id="list-imported-by"></ul>
                     </div>
                 </div>
+                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+                    <h4 style="color: var(--text-muted); margin-bottom: 12px;">Impact Analysis</h4>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 16px;">If you change this file, <strong id="impact-count" style="color: #fca5a5;">0</strong> files could be indirectly affected.</p>
+                    <button id="btn-isolate-impact" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;">Isolate Impact Radius</button>
+                </div>
             </div>
         </div>
     </div>
@@ -241,6 +264,22 @@ class HtmlExporter {
             cdContainer.innerHTML = `<div class="insight-item">${rawData.metrics.circular_dependencies.length} cycles detected! Check terminal for details.</div>`;
         } else {
             cdContainer.innerHTML = '<div class="insight-item">None 🎉</div>';
+        }
+
+        // Populate Onboarding Tab
+        if (rawData.metrics.project_summary) {
+            const sum = rawData.metrics.project_summary;
+            document.getElementById('onb-architecture').innerText = sum.architecture || 'Unknown';
+            document.getElementById('onb-state').innerHTML = `<span>State:</span> <span>${sum.state_management?.length ? sum.state_management.join(', ') : 'None'}</span>`;
+            document.getElementById('onb-routing').innerHTML = `<span>Routing:</span> <span>${sum.routing?.length ? sum.routing.join(', ') : 'None'}</span>`;
+            document.getElementById('onb-core').innerHTML = `<span>Core:</span> <span>${sum.core_packages?.length ? sum.core_packages.join(', ') : 'None'}</span>`;
+            
+            document.getElementById('onb-stats').innerHTML = `
+                Files: ${rawData.metrics.total_nodes}<br/>
+                Screens: ${rawData.metrics.total_screens}<br/>
+                Models: ${rawData.metrics.total_models}<br/>
+                Repositories: ${rawData.metrics.total_repositories}<br/>
+            `;
         }
 
         // Build Tree (Group by module)
@@ -289,8 +328,16 @@ class HtmlExporter {
             document.getElementById('mynetwork').classList.add('active');
             document.getElementById('details-panel').classList.remove('active');
             
-            let nodesToDraw = rawData.nodes;
-            if (moduleId === 'top_relevant') {
+            let impactMode = false;
+            let impactNodeId = null;
+
+            if (moduleId.startsWith('impact_')) {
+                impactMode = true;
+                impactNodeId = moduleId.replace('impact_', '');
+                const impacted = rawData.metrics.impact_radius[impactNodeId] || [];
+                const nodeIdsSet = new Set([impactNodeId, ...impacted]);
+                nodesToDraw = rawData.nodes.filter(n => nodeIdsSet.has(n.id));
+            } else if (moduleId === 'top_relevant') {
                 const topNodesSet = new Set(rawData.metrics.top_nodes);
                 nodesToDraw = rawData.nodes.filter(n => topNodesSet.has(n.id));
             } else if(moduleId !== 'all') {
@@ -312,14 +359,22 @@ class HtmlExporter {
             const nodeIds = new Set(nodesToDraw.map(n => n.id));
             const edgesToDraw = rawData.edges.filter(e => nodeIds.has(e.source) && nodeIds.has(e.target));
             
-            const visNodes = nodesToDraw.map(n => ({
-                id: n.id, label: n.label,
-                color: { background: typeColors[n.type] || typeColors.file, border: '#ffffff' },
-                font: { color: '#fff' }
-            }));
+            const visNodes = nodesToDraw.map(n => {
+                let bgColor = typeColors[n.type] || typeColors.file;
+                let borderColor = '#ffffff';
+                if (impactMode) {
+                    if (n.id === impactNodeId) { bgColor = '#ef4444'; borderColor = '#fee2e2'; } // Target is red
+                    else { bgColor = '#fca5a5'; } // Impacted are light red
+                }
+                return {
+                    id: n.id, label: n.label,
+                    color: { background: bgColor, border: borderColor },
+                    font: { color: '#fff' }
+                };
+            });
             
             const visEdges = edgesToDraw.map(e => ({
-                from: e.source, to: e.target, arrows: 'to', color: 'rgba(148, 163, 184, 0.4)'
+                from: e.source, to: e.target, arrows: 'to', color: impactMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(148, 163, 184, 0.4)'
             }));
 
             const container = document.getElementById('mynetwork');
@@ -363,6 +418,13 @@ class HtmlExporter {
             
             document.getElementById('list-imports').innerHTML = imports.map(id => `<li>${id}</li>`).join('') || '<li>None</li>';
             document.getElementById('list-imported-by').innerHTML = importedBy.map(id => `<li>${id}</li>`).join('') || '<li>None</li>';
+
+            const impactRadius = rawData.metrics.impact_radius[nodeId] || [];
+            document.getElementById('impact-count').innerText = impactRadius.length;
+            
+            document.getElementById('btn-isolate-impact').onclick = () => {
+                drawGraph(`impact_${nodeId}`);
+            };
         }
         
         // Bind tree clicks

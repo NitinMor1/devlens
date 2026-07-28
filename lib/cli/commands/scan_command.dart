@@ -3,6 +3,9 @@ import 'package:devlens/packages/parser/dart_parser.dart';
 import 'package:devlens/packages/graph_engine/models.dart';
 import 'package:devlens/packages/reports/json_exporter.dart';
 import 'package:devlens/packages/reports/html_exporter.dart';
+import 'package:devlens/packages/architecture_analyzer/architecture_detector.dart';
+import 'package:devlens/packages/architecture_analyzer/tech_stack_detector.dart';
+import 'package:devlens/packages/architecture_analyzer/project_summary.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 
@@ -35,6 +38,10 @@ class ScanCommand extends Command<void> {
       return;
     }
 
+    print('Detecting Architecture & Tech Stack...');
+    final archPattern = ArchitectureDetector().detect(absolutePath);
+    final techStack = TechStackDetector().detect(absolutePath);
+
     print('Parsing Dart files...');
     final parser = DartParser(rootPath: absolutePath);
     final nodes = await parser.parseProject();
@@ -43,7 +50,15 @@ class ScanCommand extends Command<void> {
 
     print('Generating graph...');
     final graph = DependencyGraph(nodes: nodes);
-    final graphData = graph.toJson();
+    
+    final summaryJson = {
+      'architecture': archPattern.name,
+      'state_management': techStack.stateManagement,
+      'routing': techStack.routing,
+      'core_packages': techStack.corePackages,
+    };
+    
+    final graphData = graph.toJson(projectSummaryJson: summaryJson);
     final metrics = graphData['metrics'] as Map<String, dynamic>;
 
     print('\n🚀 DevLens Architecture Report\n');
@@ -79,8 +94,8 @@ class ScanCommand extends Command<void> {
 
     print('\nExporting reports...');
     final outDir = p.join(absolutePath, '.dep_explorer');
-    await JsonExporter.export(graph, outDir);
-    await HtmlExporter.export(graph, outDir);
+    await JsonExporter.export(graph, graphData, outDir);
+    await HtmlExporter.export(graphData, outDir);
 
     print('\nScan complete! Reports saved to $outDir');
     

@@ -3,15 +3,17 @@ class DependencyGraph {
 
   DependencyGraph({required this.nodes});
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({Map<String, dynamic>? projectSummaryJson}) {
     // Generate edges from node dependencies
     final edges = <Edge>[];
     final Map<String, int> incomingEdges = {};
     final Map<String, int> outgoingEdges = {};
+    final Map<String, List<String>> reverseDependencies = {}; // Who depends on this node?
 
     for (final node in nodes) {
       incomingEdges[node.id] = 0;
       outgoingEdges[node.id] = 0;
+      reverseDependencies[node.id] = [];
     }
 
     for (final node in nodes) {
@@ -20,6 +22,10 @@ class DependencyGraph {
         
         outgoingEdges[node.id] = (outgoingEdges[node.id] ?? 0) + 1;
         incomingEdges[dep] = (incomingEdges[dep] ?? 0) + 1;
+        
+        if (reverseDependencies.containsKey(dep)) {
+          reverseDependencies[dep]!.add(node.id);
+        }
       }
     }
 
@@ -55,6 +61,25 @@ class DependencyGraph {
       if (!visited.contains(node.id)) {
         detectCycle(node.id, []);
       }
+    }
+    
+    // Impact Radius (BFS for every node)
+    final Map<String, List<String>> impactRadius = {};
+    for (final node in nodes) {
+      final queue = [node.id];
+      final impacted = <String>{};
+      
+      while (queue.isNotEmpty) {
+        final current = queue.removeAt(0);
+        final revDeps = reverseDependencies[current] ?? [];
+        for (final revDep in revDeps) {
+          if (!impacted.contains(revDep)) {
+            impacted.add(revDep);
+            queue.add(revDep);
+          }
+        }
+      }
+      impactRadius[node.id] = impacted.toList();
     }
 
     // Calculate Architecture Score
@@ -136,6 +161,8 @@ class DependencyGraph {
         'dynamic_threshold': threshold,
         'top_nodes': topNodes,
         'all_nodes_ranked': allNodesRanked,
+        'impact_radius': impactRadius,
+        'project_summary': projectSummaryJson,
       }
     };
   }

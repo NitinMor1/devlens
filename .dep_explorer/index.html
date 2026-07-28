@@ -139,11 +139,29 @@
         
         <div class="tabs">
             <div class="tab active" data-target="tab-explorer">Explorer</div>
+            <div class="tab" data-target="tab-onboarding">Onboarding</div>
             <div class="tab" data-target="tab-insights">Insights</div>
         </div>
         
         <div class="tab-content active" id="tab-explorer">
             <ul id="file-tree"></ul>
+        </div>
+        
+        <div class="tab-content" id="tab-onboarding">
+            <div class="insight-card">
+                <h4>Architecture</h4>
+                <div id="onb-architecture" style="font-size: 1rem; color: var(--accent); margin-bottom: 8px;"></div>
+            </div>
+            <div class="insight-card">
+                <h4>Tech Stack</h4>
+                <div id="onb-state" class="insight-item"></div>
+                <div id="onb-routing" class="insight-item"></div>
+                <div id="onb-core" class="insight-item"></div>
+            </div>
+            <div class="insight-card">
+                <h4>Project Stats</h4>
+                <div id="onb-stats" style="font-size: 0.875rem; line-height: 1.5;"></div>
+            </div>
         </div>
         
         <div class="tab-content" id="tab-insights">
@@ -188,12 +206,17 @@
                         <ul id="list-imported-by"></ul>
                     </div>
                 </div>
+                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+                    <h4 style="color: var(--text-muted); margin-bottom: 12px;">Impact Analysis</h4>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 16px;">If you change this file, <strong id="impact-count" style="color: #fca5a5;">0</strong> files could be indirectly affected.</p>
+                    <button id="btn-isolate-impact" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;">Isolate Impact Radius</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-        const rawData = {"nodes":[{"id":"package:devlens/cli/commands/scan_command.dart","label":"scan_command.dart","type":"file","group":"core","module":"cli"},{"id":"package:devlens/cli/command_runner.dart","label":"command_runner.dart","type":"file","group":"core","module":"cli"},{"id":"package:devlens/devlens.dart","label":"devlens.dart","type":"file","group":"core","module":"root"},{"id":"package:devlens/packages/graph_engine/models.dart","label":"models.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/parser/dart_parser.dart","label":"dart_parser.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/reports/html_exporter.dart","label":"html_exporter.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/reports/json_exporter.dart","label":"json_exporter.dart","type":"file","group":"core","module":"packages"}],"edges":[{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/parser/dart_parser.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/reports/json_exporter.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/reports/html_exporter.dart","type":"imports"},{"source":"package:devlens/cli/command_runner.dart","target":"package:devlens/cli/commands/scan_command.dart","type":"imports"},{"source":"package:devlens/packages/parser/dart_parser.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/reports/html_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/reports/json_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"}],"metrics":{"architecture_score":100,"circular_dependencies":[],"highly_coupled":[],"god_classes":[],"total_nodes":7,"total_edges":8,"total_screens":0,"total_models":0,"total_repositories":0,"total_services":0,"total_widgets":0,"dynamic_threshold":7,"top_nodes":["package:devlens/cli/commands/scan_command.dart","package:devlens/packages/graph_engine/models.dart","package:devlens/packages/parser/dart_parser.dart","package:devlens/packages/reports/html_exporter.dart","package:devlens/packages/reports/json_exporter.dart","package:devlens/cli/command_runner.dart","package:devlens/devlens.dart"],"all_nodes_ranked":[{"id":"package:devlens/cli/commands/scan_command.dart","score":5},{"id":"package:devlens/packages/graph_engine/models.dart","score":4},{"id":"package:devlens/packages/parser/dart_parser.dart","score":2},{"id":"package:devlens/packages/reports/html_exporter.dart","score":2},{"id":"package:devlens/packages/reports/json_exporter.dart","score":2},{"id":"package:devlens/cli/command_runner.dart","score":1},{"id":"package:devlens/devlens.dart","score":0}]}};
+        const rawData = {"nodes":[{"id":"package:devlens/cli/commands/explain_command.dart","label":"explain_command.dart","type":"file","group":"core","module":"cli"},{"id":"package:devlens/cli/commands/scan_command.dart","label":"scan_command.dart","type":"file","group":"core","module":"cli"},{"id":"package:devlens/cli/command_runner.dart","label":"command_runner.dart","type":"file","group":"core","module":"cli"},{"id":"package:devlens/devlens.dart","label":"devlens.dart","type":"file","group":"core","module":"root"},{"id":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","label":"architecture_detector.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/architecture_analyzer/project_summary.dart","label":"project_summary.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","label":"tech_stack_detector.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/graph_engine/models.dart","label":"models.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/parser/dart_parser.dart","label":"dart_parser.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/reports/html_exporter.dart","label":"html_exporter.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/reports/json_exporter.dart","label":"json_exporter.dart","type":"file","group":"core","module":"packages"}],"edges":[{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/parser/dart_parser.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/parser/dart_parser.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/reports/json_exporter.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/reports/html_exporter.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/cli/command_runner.dart","target":"package:devlens/cli/commands/scan_command.dart","type":"imports"},{"source":"package:devlens/cli/command_runner.dart","target":"package:devlens/cli/commands/explain_command.dart","type":"imports"},{"source":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/packages/parser/dart_parser.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/reports/html_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/reports/json_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"}],"metrics":{"architecture_score":100,"circular_dependencies":[],"highly_coupled":[],"god_classes":[],"total_nodes":11,"total_edges":19,"total_screens":0,"total_models":0,"total_repositories":0,"total_services":0,"total_widgets":0,"dynamic_threshold":11,"top_nodes":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/commands/explain_command.dart","package:devlens/packages/graph_engine/models.dart","package:devlens/packages/architecture_analyzer/project_summary.dart","package:devlens/packages/architecture_analyzer/architecture_detector.dart","package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","package:devlens/packages/parser/dart_parser.dart","package:devlens/cli/command_runner.dart","package:devlens/packages/reports/html_exporter.dart","package:devlens/packages/reports/json_exporter.dart","package:devlens/devlens.dart"],"all_nodes_ranked":[{"id":"package:devlens/cli/commands/scan_command.dart","score":8},{"id":"package:devlens/cli/commands/explain_command.dart","score":6},{"id":"package:devlens/packages/graph_engine/models.dart","score":5},{"id":"package:devlens/packages/architecture_analyzer/project_summary.dart","score":4},{"id":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","score":3},{"id":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","score":3},{"id":"package:devlens/packages/parser/dart_parser.dart","score":3},{"id":"package:devlens/cli/command_runner.dart","score":2},{"id":"package:devlens/packages/reports/html_exporter.dart","score":2},{"id":"package:devlens/packages/reports/json_exporter.dart","score":2},{"id":"package:devlens/devlens.dart","score":0}],"impact_radius":{"package:devlens/cli/commands/explain_command.dart":["package:devlens/cli/command_runner.dart"],"package:devlens/cli/commands/scan_command.dart":["package:devlens/cli/command_runner.dart"],"package:devlens/cli/command_runner.dart":[],"package:devlens/devlens.dart":[],"package:devlens/packages/architecture_analyzer/architecture_detector.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/architecture_analyzer/project_summary.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/packages/architecture_analyzer/architecture_detector.dart","package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/graph_engine/models.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/packages/parser/dart_parser.dart","package:devlens/packages/reports/html_exporter.dart","package:devlens/packages/reports/json_exporter.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/parser/dart_parser.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/reports/html_exporter.dart":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/reports/json_exporter.dart":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"]},"project_summary":{"architecture":"Unknown","state_management":[],"routing":[],"core_packages":[]}}};
         
         // Colors
         const typeColors = {
@@ -222,6 +245,22 @@
             cdContainer.innerHTML = `<div class="insight-item">${rawData.metrics.circular_dependencies.length} cycles detected! Check terminal for details.</div>`;
         } else {
             cdContainer.innerHTML = '<div class="insight-item">None 🎉</div>';
+        }
+
+        // Populate Onboarding Tab
+        if (rawData.metrics.project_summary) {
+            const sum = rawData.metrics.project_summary;
+            document.getElementById('onb-architecture').innerText = sum.architecture || 'Unknown';
+            document.getElementById('onb-state').innerHTML = `<span>State:</span> <span>${sum.state_management?.length ? sum.state_management.join(', ') : 'None'}</span>`;
+            document.getElementById('onb-routing').innerHTML = `<span>Routing:</span> <span>${sum.routing?.length ? sum.routing.join(', ') : 'None'}</span>`;
+            document.getElementById('onb-core').innerHTML = `<span>Core:</span> <span>${sum.core_packages?.length ? sum.core_packages.join(', ') : 'None'}</span>`;
+            
+            document.getElementById('onb-stats').innerHTML = `
+                Files: ${rawData.metrics.total_nodes}<br/>
+                Screens: ${rawData.metrics.total_screens}<br/>
+                Models: ${rawData.metrics.total_models}<br/>
+                Repositories: ${rawData.metrics.total_repositories}<br/>
+            `;
         }
 
         // Build Tree (Group by module)
@@ -270,8 +309,16 @@
             document.getElementById('mynetwork').classList.add('active');
             document.getElementById('details-panel').classList.remove('active');
             
-            let nodesToDraw = rawData.nodes;
-            if (moduleId === 'top_relevant') {
+            let impactMode = false;
+            let impactNodeId = null;
+
+            if (moduleId.startsWith('impact_')) {
+                impactMode = true;
+                impactNodeId = moduleId.replace('impact_', '');
+                const impacted = rawData.metrics.impact_radius[impactNodeId] || [];
+                const nodeIdsSet = new Set([impactNodeId, ...impacted]);
+                nodesToDraw = rawData.nodes.filter(n => nodeIdsSet.has(n.id));
+            } else if (moduleId === 'top_relevant') {
                 const topNodesSet = new Set(rawData.metrics.top_nodes);
                 nodesToDraw = rawData.nodes.filter(n => topNodesSet.has(n.id));
             } else if(moduleId !== 'all') {
@@ -293,14 +340,22 @@
             const nodeIds = new Set(nodesToDraw.map(n => n.id));
             const edgesToDraw = rawData.edges.filter(e => nodeIds.has(e.source) && nodeIds.has(e.target));
             
-            const visNodes = nodesToDraw.map(n => ({
-                id: n.id, label: n.label,
-                color: { background: typeColors[n.type] || typeColors.file, border: '#ffffff' },
-                font: { color: '#fff' }
-            }));
+            const visNodes = nodesToDraw.map(n => {
+                let bgColor = typeColors[n.type] || typeColors.file;
+                let borderColor = '#ffffff';
+                if (impactMode) {
+                    if (n.id === impactNodeId) { bgColor = '#ef4444'; borderColor = '#fee2e2'; } // Target is red
+                    else { bgColor = '#fca5a5'; } // Impacted are light red
+                }
+                return {
+                    id: n.id, label: n.label,
+                    color: { background: bgColor, border: borderColor },
+                    font: { color: '#fff' }
+                };
+            });
             
             const visEdges = edgesToDraw.map(e => ({
-                from: e.source, to: e.target, arrows: 'to', color: 'rgba(148, 163, 184, 0.4)'
+                from: e.source, to: e.target, arrows: 'to', color: impactMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(148, 163, 184, 0.4)'
             }));
 
             const container = document.getElementById('mynetwork');
@@ -344,6 +399,13 @@
             
             document.getElementById('list-imports').innerHTML = imports.map(id => `<li>${id}</li>`).join('') || '<li>None</li>';
             document.getElementById('list-imported-by').innerHTML = importedBy.map(id => `<li>${id}</li>`).join('') || '<li>None</li>';
+
+            const impactRadius = rawData.metrics.impact_radius[nodeId] || [];
+            document.getElementById('impact-count').innerText = impactRadius.length;
+            
+            document.getElementById('btn-isolate-impact').onclick = () => {
+                drawGraph(`impact_${nodeId}`);
+            };
         }
         
         // Bind tree clicks

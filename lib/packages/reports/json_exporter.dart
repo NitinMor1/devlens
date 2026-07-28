@@ -4,13 +4,13 @@ import 'package:devlens/packages/graph_engine/models.dart';
 import 'package:path/path.dart' as p;
 
 class JsonExporter {
-  static Future<void> export(DependencyGraph graph, String outputDir) async {
+  static Future<void> export(DependencyGraph graph, Map<String, dynamic> graphData, String outputDir) async {
     final dir = Directory(outputDir);
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
 
-    final graphJson = jsonEncode(graph.toJson());
+    final graphJson = jsonEncode(graphData);
     final graphFile = File(p.join(outputDir, 'graph.json'));
     await graphFile.writeAsString(graphJson);
 

@@ -1,5 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:devlens/cli/commands/scan_command.dart';
+import 'package:devlens/cli/commands/explain_command.dart';
 
 /// The main command runner for the devlens CLI.
 /// 
@@ -12,5 +13,6 @@ class DevLensCommandRunner extends CommandRunner<void> {
           'Flutter Dependency Explorer - A visual developer tool for Flutter codebases.',
         ) {
     addCommand(ScanCommand());
+    addCommand(ExplainCommand());
   }
 }
