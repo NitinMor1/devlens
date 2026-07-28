@@ -162,6 +162,10 @@
                 <h4>Project Stats</h4>
                 <div id="onb-stats" style="font-size: 0.875rem; line-height: 1.5;"></div>
             </div>
+            <div class="insight-card">
+                <h4>Recommended Learning Path</h4>
+                <ol id="onb-learning-path" style="font-size: 0.875rem; line-height: 1.6; margin: 8px 0 0 16px; padding-left: 10px; color: var(--accent);"></ol>
+            </div>
         </div>
         
         <div class="tab-content" id="tab-insights">
@@ -182,11 +186,21 @@
     
     <div class="main-area">
         <div class="toolbar">
-            <span style="font-size: 0.875rem; color: var(--text-muted);">Graph Module:</span>
+            <span style="font-size: 0.875rem; color: var(--text-muted);">View:</span>
+            <select id="view-mode-select">
+                <option value="overview">🌐 Project Overview</option>
+                <option value="feature">🔍 Feature Flow</option>
+            </select>
+            <select id="feature-select" style="display:none;">
+                <option value="">Select a Feature...</option>
+            </select>
             <select id="module-select">
                 <option value="top_relevant">Top Relevant Files (Default)</option>
-                <option value="all">Entire Project (Slow)</option>
+                <option value="all">Entire Project</option>
             </select>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--text-muted);cursor:pointer;">
+                <input type="checkbox" id="hide-hubs" checked style="cursor:pointer;"> Hide Hub Files
+            </label>
             <button id="btn-draw">Draw Graph</button>
             <button id="btn-details" style="margin-left:auto;">Show Details</button>
         </div>
@@ -216,7 +230,7 @@
     </div>
 
     <script type="text/javascript">
-        const rawData = {"nodes":[{"id":"package:devlens/cli/commands/explain_command.dart","label":"explain_command.dart","type":"file","group":"core","module":"cli"},{"id":"package:devlens/cli/commands/scan_command.dart","label":"scan_command.dart","type":"file","group":"core","module":"cli"},{"id":"package:devlens/cli/command_runner.dart","label":"command_runner.dart","type":"file","group":"core","module":"cli"},{"id":"package:devlens/devlens.dart","label":"devlens.dart","type":"file","group":"core","module":"root"},{"id":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","label":"architecture_detector.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/architecture_analyzer/project_summary.dart","label":"project_summary.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","label":"tech_stack_detector.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/graph_engine/models.dart","label":"models.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/parser/dart_parser.dart","label":"dart_parser.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/reports/html_exporter.dart","label":"html_exporter.dart","type":"file","group":"core","module":"packages"},{"id":"package:devlens/packages/reports/json_exporter.dart","label":"json_exporter.dart","type":"file","group":"core","module":"packages"}],"edges":[{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/parser/dart_parser.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/parser/dart_parser.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/reports/json_exporter.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/reports/html_exporter.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/cli/command_runner.dart","target":"package:devlens/cli/commands/scan_command.dart","type":"imports"},{"source":"package:devlens/cli/command_runner.dart","target":"package:devlens/cli/commands/explain_command.dart","type":"imports"},{"source":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/packages/parser/dart_parser.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/reports/html_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/reports/json_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"}],"metrics":{"architecture_score":100,"circular_dependencies":[],"highly_coupled":[],"god_classes":[],"total_nodes":11,"total_edges":19,"total_screens":0,"total_models":0,"total_repositories":0,"total_services":0,"total_widgets":0,"dynamic_threshold":11,"top_nodes":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/commands/explain_command.dart","package:devlens/packages/graph_engine/models.dart","package:devlens/packages/architecture_analyzer/project_summary.dart","package:devlens/packages/architecture_analyzer/architecture_detector.dart","package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","package:devlens/packages/parser/dart_parser.dart","package:devlens/cli/command_runner.dart","package:devlens/packages/reports/html_exporter.dart","package:devlens/packages/reports/json_exporter.dart","package:devlens/devlens.dart"],"all_nodes_ranked":[{"id":"package:devlens/cli/commands/scan_command.dart","score":8},{"id":"package:devlens/cli/commands/explain_command.dart","score":6},{"id":"package:devlens/packages/graph_engine/models.dart","score":5},{"id":"package:devlens/packages/architecture_analyzer/project_summary.dart","score":4},{"id":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","score":3},{"id":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","score":3},{"id":"package:devlens/packages/parser/dart_parser.dart","score":3},{"id":"package:devlens/cli/command_runner.dart","score":2},{"id":"package:devlens/packages/reports/html_exporter.dart","score":2},{"id":"package:devlens/packages/reports/json_exporter.dart","score":2},{"id":"package:devlens/devlens.dart","score":0}],"impact_radius":{"package:devlens/cli/commands/explain_command.dart":["package:devlens/cli/command_runner.dart"],"package:devlens/cli/commands/scan_command.dart":["package:devlens/cli/command_runner.dart"],"package:devlens/cli/command_runner.dart":[],"package:devlens/devlens.dart":[],"package:devlens/packages/architecture_analyzer/architecture_detector.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/architecture_analyzer/project_summary.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/packages/architecture_analyzer/architecture_detector.dart","package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/graph_engine/models.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/packages/parser/dart_parser.dart","package:devlens/packages/reports/html_exporter.dart","package:devlens/packages/reports/json_exporter.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/parser/dart_parser.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/reports/html_exporter.dart":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/reports/json_exporter.dart":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"]},"project_summary":{"architecture":"Unknown","state_management":[],"routing":[],"core_packages":[]}}};
+        const rawData = {"nodes":[{"id":"package:devlens/cli/commands/explain_command.dart","label":"explain_command.dart","type":"file","group":"core","module":"cli","feature":"uncategorized"},{"id":"package:devlens/cli/commands/scan_command.dart","label":"scan_command.dart","type":"file","group":"core","module":"cli","feature":"uncategorized"},{"id":"package:devlens/cli/command_runner.dart","label":"command_runner.dart","type":"file","group":"core","module":"cli","feature":"uncategorized"},{"id":"package:devlens/devlens.dart","label":"devlens.dart","type":"file","group":"core","module":"root","feature":"uncategorized"},{"id":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","label":"architecture_detector.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"},{"id":"package:devlens/packages/architecture_analyzer/feature_detector.dart","label":"feature_detector.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"},{"id":"package:devlens/packages/architecture_analyzer/learning_path_detector.dart","label":"learning_path_detector.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"},{"id":"package:devlens/packages/architecture_analyzer/project_summary.dart","label":"project_summary.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"},{"id":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","label":"tech_stack_detector.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"},{"id":"package:devlens/packages/graph_engine/models.dart","label":"models.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"},{"id":"package:devlens/packages/parser/dart_parser.dart","label":"dart_parser.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"},{"id":"package:devlens/packages/reports/html_exporter.dart","label":"html_exporter.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"},{"id":"package:devlens/packages/reports/json_exporter.dart","label":"json_exporter.dart","type":"file","group":"core","module":"packages","feature":"uncategorized"}],"edges":[{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/parser/dart_parser.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/cli/commands/explain_command.dart","target":"package:devlens/packages/architecture_analyzer/learning_path_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/parser/dart_parser.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/reports/json_exporter.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/reports/html_exporter.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/learning_path_detector.dart","type":"imports"},{"source":"package:devlens/cli/commands/scan_command.dart","target":"package:devlens/packages/architecture_analyzer/feature_detector.dart","type":"imports"},{"source":"package:devlens/cli/command_runner.dart","target":"package:devlens/cli/commands/scan_command.dart","type":"imports"},{"source":"package:devlens/cli/command_runner.dart","target":"package:devlens/cli/commands/explain_command.dart","type":"imports"},{"source":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/packages/architecture_analyzer/feature_detector.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/architecture_analyzer/learning_path_detector.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","target":"package:devlens/packages/architecture_analyzer/project_summary.dart","type":"imports"},{"source":"package:devlens/packages/parser/dart_parser.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/reports/html_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"},{"source":"package:devlens/packages/reports/json_exporter.dart","target":"package:devlens/packages/graph_engine/models.dart","type":"imports"}],"metrics":{"architecture_score":100,"circular_dependencies":[],"highly_coupled":[],"god_classes":[],"total_nodes":13,"total_edges":24,"total_screens":0,"total_models":0,"total_repositories":0,"total_services":0,"total_widgets":0,"dynamic_threshold":13,"top_nodes":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/commands/explain_command.dart","package:devlens/packages/graph_engine/models.dart","package:devlens/packages/architecture_analyzer/project_summary.dart","package:devlens/packages/architecture_analyzer/architecture_detector.dart","package:devlens/packages/architecture_analyzer/learning_path_detector.dart","package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","package:devlens/packages/parser/dart_parser.dart","package:devlens/cli/command_runner.dart","package:devlens/packages/architecture_analyzer/feature_detector.dart","package:devlens/packages/reports/html_exporter.dart","package:devlens/packages/reports/json_exporter.dart","package:devlens/devlens.dart"],"all_nodes_ranked":[{"id":"package:devlens/cli/commands/scan_command.dart","score":10},{"id":"package:devlens/cli/commands/explain_command.dart","score":7},{"id":"package:devlens/packages/graph_engine/models.dart","score":7},{"id":"package:devlens/packages/architecture_analyzer/project_summary.dart","score":4},{"id":"package:devlens/packages/architecture_analyzer/architecture_detector.dart","score":3},{"id":"package:devlens/packages/architecture_analyzer/learning_path_detector.dart","score":3},{"id":"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","score":3},{"id":"package:devlens/packages/parser/dart_parser.dart","score":3},{"id":"package:devlens/cli/command_runner.dart","score":2},{"id":"package:devlens/packages/architecture_analyzer/feature_detector.dart","score":2},{"id":"package:devlens/packages/reports/html_exporter.dart","score":2},{"id":"package:devlens/packages/reports/json_exporter.dart","score":2},{"id":"package:devlens/devlens.dart","score":0}],"impact_radius":{"package:devlens/cli/commands/explain_command.dart":["package:devlens/cli/command_runner.dart"],"package:devlens/cli/commands/scan_command.dart":["package:devlens/cli/command_runner.dart"],"package:devlens/cli/command_runner.dart":[],"package:devlens/devlens.dart":[],"package:devlens/packages/architecture_analyzer/architecture_detector.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/architecture_analyzer/feature_detector.dart":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/architecture_analyzer/learning_path_detector.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/architecture_analyzer/project_summary.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/packages/architecture_analyzer/architecture_detector.dart","package:devlens/packages/architecture_analyzer/tech_stack_detector.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/architecture_analyzer/tech_stack_detector.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/graph_engine/models.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/packages/architecture_analyzer/feature_detector.dart","package:devlens/packages/architecture_analyzer/learning_path_detector.dart","package:devlens/packages/parser/dart_parser.dart","package:devlens/packages/reports/html_exporter.dart","package:devlens/packages/reports/json_exporter.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/parser/dart_parser.dart":["package:devlens/cli/commands/explain_command.dart","package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/reports/html_exporter.dart":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"],"package:devlens/packages/reports/json_exporter.dart":["package:devlens/cli/commands/scan_command.dart","package:devlens/cli/command_runner.dart"]},"features":[],"project_summary":{"architecture":"Unknown","state_management":[],"routing":[],"core_packages":[],"learning_path":[]}}};
         
         // Colors
         const typeColors = {
@@ -261,6 +275,13 @@
                 Models: ${rawData.metrics.total_models}<br/>
                 Repositories: ${rawData.metrics.total_repositories}<br/>
             `;
+            
+            const lpContainer = document.getElementById('onb-learning-path');
+            if (sum.learning_path && sum.learning_path.length > 0) {
+                lpContainer.innerHTML = sum.learning_path.map(p => `<li>${p.split('/').pop()}</li>`).join('');
+            } else {
+                lpContainer.innerHTML = '<li>main.dart not found</li>';
+            }
         }
 
         // Build Tree (Group by module)
@@ -304,13 +325,134 @@
 
         // Graphing Logic
         let network = null;
-        
+        const HUB_THRESHOLD = 30;
+
+        // Build connection count map for hub filtering
+        const connectionCount = {};
+        rawData.edges.forEach(e => {
+            connectionCount[e.source] = (connectionCount[e.source] || 0) + 1;
+            connectionCount[e.target] = (connectionCount[e.target] || 0) + 1;
+        });
+
+        // ── View Mode Toggle ────────────────────────────────
+        const viewModeSelect = document.getElementById('view-mode-select');
+        const featureSelectEl = document.getElementById('feature-select');
+        const moduleSelectEl = document.getElementById('module-select');
+
+        // Populate feature dropdown — exclude shared/utility buckets
+        (rawData.metrics.features || [])
+            .filter(f => f !== 'shared' && f !== 'uncategorized')
+            .forEach(f => {
+                featureSelectEl.innerHTML += `<option value="${f}">${f}</option>`;
+            });
+
+        viewModeSelect.addEventListener('change', () => {
+            if (viewModeSelect.value === 'feature') {
+                featureSelectEl.style.display = '';
+                moduleSelectEl.style.display = 'none';
+            } else {
+                featureSelectEl.style.display = 'none';
+                moduleSelectEl.style.display = '';
+            }
+        });
+
+        document.getElementById('btn-draw').addEventListener('click', () => {
+            if (viewModeSelect.value === 'feature') {
+                const feat = featureSelectEl.value;
+                if (feat) drawFeatureFlow(feat);
+            } else {
+                drawGraph(moduleSelectEl.value);
+            }
+        });
+
+        document.getElementById('btn-details').addEventListener('click', () => {
+            document.getElementById('mynetwork').classList.remove('active');
+            document.getElementById('details-panel').classList.add('active');
+        });
+
+        // ── Feature Flow: Clean Hierarchical View ─────────
+        function drawFeatureFlow(featureName) {
+            document.getElementById('mynetwork').classList.add('active');
+            document.getElementById('details-panel').classList.remove('active');
+
+            // Collect nodes belonging to this feature
+            let featureNodes = rawData.nodes.filter(n => n.feature === featureName);
+
+            // Always include main.dart as the root
+            const mainNode = rawData.nodes.find(n => n.id.endsWith('main.dart'));
+            if (mainNode && !featureNodes.find(n => n.id === mainNode.id)) {
+                featureNodes = [mainNode, ...featureNodes];
+            }
+
+            const featureNodeIds = new Set(featureNodes.map(n => n.id));
+
+            // Only draw edges between nodes in this feature
+            const featureEdges = rawData.edges.filter(e =>
+                featureNodeIds.has(e.source) && featureNodeIds.has(e.target)
+            );
+
+            // Assign hierarchy levels for top-down layout
+            const levelMap = { screen: 1, state: 2, repository: 3, service: 3, model: 4, file: 2 };
+
+            const visNodes = featureNodes.map(n => {
+                const isMain = n.id.endsWith('main.dart');
+                return {
+                    id: n.id,
+                    label: n.label,
+                    level: isMain ? 0 : (levelMap[n.type] || 2),
+                    color: {
+                        background: isMain ? '#f97316' : (typeColors[n.type] || typeColors.file),
+                        border: '#ffffff',
+                        highlight: { background: '#38bdf8', border: '#fff' }
+                    },
+                    font: { color: '#fff', size: 13 },
+                    shape: isMain ? 'star' : 'dot',
+                    size: isMain ? 22 : 16,
+                };
+            });
+
+            const visEdges = featureEdges.map(e => ({
+                from: e.source, to: e.target, arrows: 'to',
+                color: { color: 'rgba(148, 163, 184, 0.6)', highlight: '#38bdf8' }
+            }));
+
+            const container = document.getElementById('mynetwork');
+            const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
+            const options = {
+                nodes: { shape: 'dot', size: 16, font: { size: 13 } },
+                edges: {
+                    smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.4 },
+                    arrows: { to: { scaleFactor: 0.7 } }
+                },
+                layout: {
+                    hierarchical: {
+                        enabled: true,
+                        direction: 'UD',
+                        sortMethod: 'directed',
+                        levelSeparation: 130,
+                        nodeSpacing: 160,
+                        treeSpacing: 200,
+                    }
+                },
+                physics: false,
+                interaction: { hover: true, tooltipDelay: 200 }
+            };
+
+            if (network) network.destroy();
+            network = new vis.Network(container, data, options);
+            network.on('selectNode', params => showDetails(params.nodes[0]));
+        }
+
+        // ── Overview Graph: Force-Directed Web ─────────────
         function drawGraph(moduleId) {
             document.getElementById('mynetwork').classList.add('active');
             document.getElementById('details-panel').classList.remove('active');
-            
+
+            const hideHubs = document.getElementById('hide-hubs').checked;
+
             let impactMode = false;
             let impactNodeId = null;
+            let nodesToDraw = rawData.nodes;
 
             if (moduleId.startsWith('impact_')) {
                 impactMode = true;
@@ -321,93 +463,98 @@
             } else if (moduleId === 'top_relevant') {
                 const topNodesSet = new Set(rawData.metrics.top_nodes);
                 nodesToDraw = rawData.nodes.filter(n => topNodesSet.has(n.id));
-            } else if(moduleId !== 'all') {
+            } else if (moduleId !== 'all') {
                 nodesToDraw = rawData.nodes.filter(n => n.module === moduleId);
-                // Also include immediate dependencies of this module
                 const moduleNodeIds = new Set(nodesToDraw.map(n => n.id));
                 const relatedNodeIds = new Set();
-                
                 rawData.edges.forEach(e => {
                     if (moduleNodeIds.has(e.source) && !moduleNodeIds.has(e.target)) relatedNodeIds.add(e.target);
                     if (moduleNodeIds.has(e.target) && !moduleNodeIds.has(e.source)) relatedNodeIds.add(e.source);
                 });
-                
-                rawData.nodes.forEach(n => {
-                    if (relatedNodeIds.has(n.id)) nodesToDraw.push(n);
-                });
+                rawData.nodes.forEach(n => { if (relatedNodeIds.has(n.id)) nodesToDraw.push(n); });
             }
-            
+
+            // Hub filtering: hide files with too many connections for clarity
+            if (hideHubs && !impactMode) {
+                nodesToDraw = nodesToDraw.filter(n => (connectionCount[n.id] || 0) <= HUB_THRESHOLD);
+            }
+
             const nodeIds = new Set(nodesToDraw.map(n => n.id));
             const edgesToDraw = rawData.edges.filter(e => nodeIds.has(e.source) && nodeIds.has(e.target));
-            
+
             const visNodes = nodesToDraw.map(n => {
                 let bgColor = typeColors[n.type] || typeColors.file;
                 let borderColor = '#ffffff';
                 if (impactMode) {
-                    if (n.id === impactNodeId) { bgColor = '#ef4444'; borderColor = '#fee2e2'; } // Target is red
-                    else { bgColor = '#fca5a5'; } // Impacted are light red
+                    if (n.id === impactNodeId) { bgColor = '#ef4444'; borderColor = '#fee2e2'; }
+                    else { bgColor = '#fca5a5'; }
                 }
                 return {
                     id: n.id, label: n.label,
-                    color: { background: bgColor, border: borderColor },
-                    font: { color: '#fff' }
+                    color: { background: bgColor, border: borderColor, highlight: { background: '#38bdf8', border: '#fff' } },
+                    font: { color: '#fff', size: 12 }
                 };
             });
-            
+
             const visEdges = edgesToDraw.map(e => ({
-                from: e.source, to: e.target, arrows: 'to', color: impactMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(148, 163, 184, 0.4)'
+                from: e.source, to: e.target, arrows: 'to',
+                color: impactMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(148, 163, 184, 0.3)'
             }));
 
             const container = document.getElementById('mynetwork');
             const data = { nodes: new vis.DataSet(visNodes), edges: new vis.DataSet(visEdges) };
             const options = {
-                nodes: { shape: 'dot', size: 16 },
-                physics: { forceAtlas2Based: { gravitationalConstant: -50 } }
+                nodes: { shape: 'dot', size: 16, font: { size: 12 } },
+                edges: { smooth: { type: 'continuous' } },
+                physics: {
+                    solver: 'forceAtlas2Based',
+                    forceAtlas2Based: {
+                        gravitationalConstant: -200,
+                        centralGravity: 0.005,
+                        springLength: 220,
+                        springConstant: 0.04,
+                        damping: 0.4,
+                        avoidOverlap: 1.0
+                    },
+                    stabilization: { iterations: 400 }
+                },
+                interaction: { hover: true }
             };
-            
+
             if (network) network.destroy();
             network = new vis.Network(container, data, options);
-            
-            network.on('selectNode', (params) => {
-                showDetails(params.nodes[0]);
-            });
+            network.on('selectNode', params => showDetails(params.nodes[0]));
         }
-
-        document.getElementById('btn-draw').addEventListener('click', () => {
-            drawGraph(document.getElementById('module-select').value);
-        });
-        
-        document.getElementById('btn-details').addEventListener('click', () => {
-            document.getElementById('mynetwork').classList.remove('active');
-            document.getElementById('details-panel').classList.add('active');
-        });
 
         // Details View Logic
         function showDetails(nodeId) {
             document.querySelectorAll('.file-node').forEach(n => n.classList.remove('active'));
             const el = document.querySelector(`.file-node[data-id="${nodeId}"]`);
             if (el) el.classList.add('active');
-            
+
             document.getElementById('mynetwork').classList.remove('active');
             document.getElementById('details-panel').classList.add('active');
-            
+
             const node = rawData.nodes.find(n => n.id === nodeId);
             document.getElementById('details-title').innerText = node.id;
-            
+
             const imports = rawData.edges.filter(e => e.source === nodeId).map(e => e.target);
             const importedBy = rawData.edges.filter(e => e.target === nodeId).map(e => e.source);
-            
+
             document.getElementById('list-imports').innerHTML = imports.map(id => `<li>${id}</li>`).join('') || '<li>None</li>';
             document.getElementById('list-imported-by').innerHTML = importedBy.map(id => `<li>${id}</li>`).join('') || '<li>None</li>';
 
             const impactRadius = rawData.metrics.impact_radius[nodeId] || [];
             document.getElementById('impact-count').innerText = impactRadius.length;
-            
+
             document.getElementById('btn-isolate-impact').onclick = () => {
+                viewModeSelect.value = 'overview';
+                featureSelectEl.style.display = 'none';
+                moduleSelectEl.style.display = '';
                 drawGraph(`impact_${nodeId}`);
             };
         }
-        
+
         // Bind tree clicks
         document.querySelectorAll('.file-node').forEach(node => {
             node.addEventListener('click', (e) => {
@@ -415,10 +562,10 @@
                 showDetails(node.dataset.id);
             });
         });
-        
-        // Initial draw (relevance filter by default)
-        modSelect.value = 'top_relevant';
-        drawGraph(modSelect.value);
+
+        // Initial draw
+        drawGraph('top_relevant');
+
 
     </script>
 </body>

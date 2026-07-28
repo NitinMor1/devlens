@@ -4,6 +4,7 @@ import 'package:devlens/packages/graph_engine/models.dart';
 import 'package:devlens/packages/architecture_analyzer/architecture_detector.dart';
 import 'package:devlens/packages/architecture_analyzer/tech_stack_detector.dart';
 import 'package:devlens/packages/architecture_analyzer/project_summary.dart';
+import 'package:devlens/packages/architecture_analyzer/learning_path_detector.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 
@@ -48,6 +49,8 @@ class ExplainCommand extends Command<void> {
     final graphData = graph.toJson();
     final metrics = graphData['metrics'] as Map<String, dynamic>;
 
+    final learningPath = LearningPathDetector().detect(graph);
+
     final summary = ProjectSummary(
       techStack: techStack,
       architecturePattern: archPattern,
@@ -56,6 +59,7 @@ class ExplainCommand extends Command<void> {
       models: metrics['total_models'] as int? ?? 0,
       repositories: metrics['total_repositories'] as int? ?? 0,
       services: metrics['total_services'] as int? ?? 0,
+      learningPath: learningPath,
     );
 
     print('\n=============================================');
@@ -63,12 +67,18 @@ class ExplainCommand extends Command<void> {
     print('=============================================\n');
     print(summary.toString());
     
-    // Future expansion: Add Recommended Learning Path here by tracing dependencies
-    print('Recommended Learning Path (Coming Soon)');
+    print('Recommended Learning Path');
     print('---------------------');
-    print('1. main.dart');
-    print('2. Routing Configuration');
-    print('3. Core Feature / Entry Point');
+    if (learningPath.isEmpty) {
+      print('Could not detect a clear learning path (main.dart not found).');
+    } else {
+      for (int i = 0; i < learningPath.length; i++) {
+        print('  [${i + 1}] ${learningPath[i]}');
+        if (i < learningPath.length - 1) {
+          print('   ↓');
+        }
+      }
+    }
     print('\n=============================================');
   }
 }

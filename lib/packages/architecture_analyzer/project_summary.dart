@@ -6,6 +6,7 @@ class ProjectSummary {
   final int models;
   final int repositories;
   final int services;
+  final List<String> learningPath;
 
   ProjectSummary({
     required this.techStack,
@@ -15,6 +16,7 @@ class ProjectSummary {
     this.models = 0,
     this.repositories = 0,
     this.services = 0,
+    this.learningPath = const [],
   });
 
   @override

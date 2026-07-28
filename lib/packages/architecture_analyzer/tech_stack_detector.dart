@@ -55,10 +55,16 @@ class TechStackDetector {
     final Set<String> routing = {};
     final Set<String> corePackages = {};
 
+    bool isFlutter = false;
+
     void processDependencies(dynamic deps) {
       if (deps is YamlMap) {
         for (final entry in deps.entries) {
           final pkgName = entry.key.toString();
+          
+          if (pkgName == 'flutter') {
+            isFlutter = true;
+          }
           
           if (_stateManagementPackages.containsKey(pkgName)) {
             stateManagement.add(_stateManagementPackages[pkgName]!);
@@ -75,6 +81,10 @@ class TechStackDetector {
 
     processDependencies(dependencies);
     processDependencies(devDependencies);
+
+    if (isFlutter && routing.isEmpty) {
+      routing.add('Native Navigator');
+    }
 
     return TechStack(
       stateManagement: stateManagement.toList()..sort(),

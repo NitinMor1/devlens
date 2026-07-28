@@ -6,6 +6,7 @@ import 'package:devlens/packages/reports/html_exporter.dart';
 import 'package:devlens/packages/architecture_analyzer/architecture_detector.dart';
 import 'package:devlens/packages/architecture_analyzer/tech_stack_detector.dart';
 import 'package:devlens/packages/architecture_analyzer/project_summary.dart';
+import 'package:devlens/packages/architecture_analyzer/learning_path_detector.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 
@@ -50,12 +51,18 @@ class ScanCommand extends Command<void> {
 
     print('Generating graph...');
     final graph = DependencyGraph(nodes: nodes);
+
+
+    
+    print('Analyzing Learning Path...');
+    final learningPath = LearningPathDetector().detect(graph);
     
     final summaryJson = {
       'architecture': archPattern.name,
       'state_management': techStack.stateManagement,
       'routing': techStack.routing,
       'core_packages': techStack.corePackages,
+      'learning_path': learningPath,
     };
     
     final graphData = graph.toJson(projectSummaryJson: summaryJson);
@@ -91,6 +98,7 @@ class ScanCommand extends Command<void> {
       final name = id.split('/').last;
       print('${i + 1}. $name (${node['score']} connections)');
     }
+    
 
     print('\nExporting reports...');
     final outDir = p.join(absolutePath, '.dep_explorer');
