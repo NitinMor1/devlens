@@ -8,10 +8,11 @@
 ---
 
 ## ✨ Features
-- 🚀 **Fast Parsing**: Scans your entire `lib/` directory in milliseconds.
-- 📦 **Dependency Mapping**: Accurately maps both `package:` and relative imports.
-- 🏗️ **Architecture Analysis**: Categorizes files by types like `Screen`, `Bloc`, `Repository`, and `Model`.
-- 📊 **JSON Export**: Generates a standard JSON graph model that can be consumed by visualizers.
+- 🚀 **Offline HTML Dashboard**: Generates a stunning 6-tab Onboarding Dashboard (Learning Path, Risk Report, Folder Map, Dead Code, Graph).
+- 🧠 **AST Code Analysis**: Uses the official `analyzer` package to statically parse Dart files, extracting imports and file types.
+- 🏗️ **Architecture Health Score**: Detects Circular Dependencies, God Classes, and Highly Coupled files to grade your codebase.
+- 🗺️ **Learning Path**: Automatically calculates the optimal reading order for a new developer to understand the project in 10 minutes.
+- 💀 **Dead Code Detection**: Highlights orphaned files that have zero incoming dependencies.
 
 ---
 
@@ -61,7 +62,7 @@ The parsed files are converted into a connected <code>DependencyGraph</code>. Th
 <summary><b>3. Output (<code>.dep_explorer/</code>)</b> <i>[Click to expand]</i></summary>
 <br>
 Once the scan is complete, DevLens creates a new directory in your project root called <b><code>.dep_explorer/</code></b>. <br>
-Inside this folder, it generates a <code>graph.json</code> file (and other reports) containing the full dependency tree, which can be loaded into visualization tools!
+Inside this folder, it generates an <code>index.html</code> file which automatically opens in your browser. This contains the full 6-tab Onboarding Dashboard!
 </details>
 
 ---

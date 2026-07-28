@@ -5,7 +5,6 @@ import 'package:devlens/packages/reports/json_exporter.dart';
 import 'package:devlens/packages/reports/html_exporter.dart';
 import 'package:devlens/packages/architecture_analyzer/architecture_detector.dart';
 import 'package:devlens/packages/architecture_analyzer/tech_stack_detector.dart';
-import 'package:devlens/packages/architecture_analyzer/project_summary.dart';
 import 'package:devlens/packages/architecture_analyzer/learning_path_detector.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;

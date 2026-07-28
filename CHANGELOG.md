@@ -1,3 +1,12 @@
+## 1.2.0
+
+- ✨ **Major Architecture Overhaul**: Replaced the single-view graph with a complete 6-Tab Onboarding Dashboard.
+- 🗺️ **Learning Path**: Added an intelligent learning path report to guide developers through the most important files.
+- ⚠️ **Risk Report**: Added scoring for Circular Dependencies, God Classes, and Highly Coupled files.
+- 🗂️ **Folder Map**: Grouped metrics by folder boundaries instead of naive top-level modules.
+- 💀 **Dead Code Detection**: Added a report that flags files with zero incoming edges.
+- 🚀 **UI Redesign**: Complete rewrite of the HTML exporter to provide a modern, responsive, tabbed UI that works completely offline.
+
 ## 1.1.0
 
 - ✨ **New Feature**: Added a stunning interactive frontend visualizer using `vis-network` (Dark mode & Glassmorphic UI).

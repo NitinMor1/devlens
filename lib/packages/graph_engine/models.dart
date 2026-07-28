@@ -96,11 +96,17 @@ class DependencyGraph {
     int totalWidgets = 0;
     
     for (final node in nodes) {
-      if (node.type == 'screen') totalScreens++;
-      else if (node.type == 'model') totalModels++;
-      else if (node.type == 'repository') totalRepositories++;
-      else if (node.type == 'service') totalServices++;
-      else if (node.type == 'widget') totalWidgets++;
+      if (node.type == 'screen') {
+        totalScreens++;
+      } else if (node.type == 'model') {
+        totalModels++;
+      } else if (node.type == 'repository') {
+        totalRepositories++;
+      } else if (node.type == 'service') {
+        totalServices++;
+      } else if (node.type == 'widget') {
+        totalWidgets++;
+      }
     }
 
     // Dynamic Threshold Calculation
